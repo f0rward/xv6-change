@@ -1,0 +1,223 @@
+./configure --cc=gcc-3.4 --enable-system --target-list=i386-softmmu --disable-kqemu
+
+
+trap->proc_tick->rq->sched_class->proc_tick(cpus[cpu()].rq, cp)->proc_tick_simple->yield
+
+yield->yield_proc
+     ->schedule
+         ->next = pick_next_proc
+	 ->setupsegs(next);
+             ->lgdt(c->gdt, sizeof(c->gdt));
+             ->ltr(SEG_TSS << 3);
+             ->lcr3(c->cr3); 
+
+         ->swtch(&prev->context, &next->context);//出错
+
+
+CR3=07de8000  initcode
+CR3=07df4000  idlecode
+CR3=07fef000  kernel
+
+
+
+line:210501
+----------------
+IN: 
+0x00104bad:  mov    %eax,%cr3
+
+EAX=07fef000 EBX=fffc0000 ECX=001ff800 EDX=001ff000
+ESI=00010094 EDI=0008807c EBP=00007b28 ESP=00007b28
+EIP=00104bb0 EFL=00000002 [-------] CPL=0 II=0 A20=1 SMM=0 HLT=0
+ES =0010 00000000 ffffffff 00cf9300
+CS =0008 00000000 ffffffff 00cf9a00
+SS =0010 00000000 ffffffff 00cf9300
+DS =0010 00000000 ffffffff 00cf9300
+FS =0010 00000000 ffffffff 00cf9300
+GS =0010 00000000 ffffffff 00cf9300
+LDT=0000 00000000 0000ffff 00008200
+TR =0000 00000000 0000ffff 00008b00
+GDT=     00007c88 00000017
+IDT=     00000000 000003ff
+CR0=60000011 CR2=00000000 CR3=07fef000 CR4=00000000
+CCS=00000018 CCD=00007b30 CCO=SUBL    
+----------------
+
+line:257543
+0x00105686:  jmp    0x1056d9
+
+EAX=00000001 EBX=00000000 ECX=00000001 EDX=00000000
+ESI=00010094 EDI=0008807c EBP=00007b68 ESP=00007b50
+EIP=00105f88 EFL=00000002 [-------] CPL=0 II=0 A20=1 SMM=0 HLT=0
+ES =0010 00000000 ffffffff 00cf9300
+CS =0008 00000000 0010ffff 00c09a00
+SS =0010 00000000 ffffffff 00cf9300
+DS =0010 00000000 ffffffff 00cf9300
+FS =0010 00000000 ffffffff 00cf9300
+GS =0010 00000000 ffffffff 00cf9300
+LDT=0000 00000000 0000ffff 00008200
+TR =0028 0010edec 00000067 00408910
+GDT=     0010ee54 0000002f
+IDT=     001181e0 000007ff
+CR0=e0050033 CR2=00000000 CR3=07df4000 CR4=00000000
+CCS=00000024 CCD=00007b44 CCO=ADDL    
+
+
+line: 261187
+---------------
+IN: 
+0x00106034:  call   0x105132
+
+EAX=00000001 EBX=0010f630 ECX=00000001 EDX=00000000
+ESI=0010724a EDI=00000000 EBP=07e00eb4 ESP=07e00e9c
+EIP=00106039 EFL=00000002 [-------] CPL=0 II=0 A20=1 SMM=0 HLT=0
+ES =0010 00000000 ffffffff 00cf9300
+CS =0008 00000000 0010ffff 00c09a00
+SS =0010 00000000 ffffffff 00cf9300
+DS =0010 00000000 ffffffff 00cf9300
+FS =0010 00000000 ffffffff 00cf9300
+GS =0010 00000000 ffffffff 00cf9300
+LDT=0000 00000000 0000ffff 00008200
+TR =0028 0010edec 00000067 00408910
+GDT=     0010ee54 0000002f
+IDT=     001181e0 000007ff
+CR0=e0050033 CR2=00000000 CR3=07de8000 CR4=00000000
+CCS=00000024 CCD=07e00e90 CCO=ADDL    
+----------------
+
+
+mpmain->setupsegs(0);L246090 ->
+
+
+
+
+
+
+
+
+
+
+在bochs下调试的idlecode 执行完iret后的情况
+00044765177i >> 105d8c, 1fe8f8c, 1fdc000
+00044765178i >> 105d8d, 1fe8f90, 1fdc000
+00044765179i >> 105f4d, 1fe8fac, 1fdc000
+00044765180i >> 105f53, 1fe8fac, 1fdc000
+00044765181i >> 105f56, 1fe8fac, 1fdc000
+00044765182i >> 10937c, 1fe8fac, 1fdc000
+00044765183i >> 109380, 1fe8fac, 1fdc000
+00044765184i >> 109375, 1fe8fac, 1fdc000
+00044765185i >> 109376, 1fe8fac, 1fdc000
+00044765186i >> 109377, 1fe8fdc, 1fdc000
+00044765187i >> 109378, 1fe8fe0, 1fdc000
+00044765188i >> 10937b, 1fe8fe0, 1fdc000
+00044765189i >> 0, 1fe8fec, 1fdc000
+00044765190i >> 0, 1fe8fec, 1fdc000
+00044765191i >> 0, 1fe8fec, 1fdc000
+00044765192i >> 0, 1fe8fec, 1fdc000
+00044765193i >> 0, 1fe8fec, 1fdc000
+00044765194i >> 0, 1fe8fec, 1fdc000
+00044765195i >> 0, 1fe8fec, 1fdc000
+00044765196i >> 0, 1fe8fec, 1fdc000
+。。。。
+00044767496i >> 0, 1fe8fec, 1fdc000
+00044767497i >> 0, 1fe8fec, 1fdc000
+00044767498i >> 0, 1fe8fec, 1fdc000
+00044767499i >> 0, 1fe8fec, 1fdc000
+00044767500i >> 109905, 1fe8fec, 1fdc000
+00044767501i >> 109907, 1fe8fec, 1fdc000
+00044767502i >> 109909, 1fe8fec, 1fdc000
+00044767503i >> 109360, 1fe8fec, 1fdc000
+00044767504i >> 109361, 1fe8fec, 1fdc000
+00044767505i >> 109362, 1fe8fec, 1fdc000
+00044767506i >> 109363, 1fe8fec, 1fdc000
+
+
+
+
+好像是执行lcr3 及 105626后就出错了。因为105627是返回地址，怎么就回到了用户态？
+
+00044836297i >> 1055ce, feaffed4, 1fdc000
+00044836298i >> 10561d, feaffed4, 1fdc000
+00044836299i >> 10561e, feaffed4, 1fdc000
+00044836300i >> 105620, feaffed4, 1fdc000
+00044836301i >> 105623, feaffed4, 1fdc000
+00044836302i >> 105626, feaffed4, 1fd0000
+00044836303i >> 105627, feaffed4, 1fd0000
+00044836304i LOCK prefix unallowed (op1=0x53, attr=0x0, mod=0x0, nnn=0)
+00044836304i >> 0, feaffed4, 1fd0000
+00044836305i >> 1, feaffed4, 1fd0000
+00044836306i >> 3, feaffed4, 1fd0000
+00044836306i CPU is in protected mode (active)
+00044836306i CS.d_b = 32 bit
+00044836306i SS.d_b = 32 bit
+00044836306i | EAX=01fd0000  EBX=00000000  ECX=00000000  EDX=01fd0000
+00044836306i | ESP=feaffed4  EBP=00000000  ESI=001070aa  EDI=00000000
+00044836306i | IOPL=0 id vip vif ac vm RF nt of df if tf sf zf af PF cf
+00044836306i | SEG selector     base    limit G D
+00044836306i | SEG sltr(index|ti|rpl)     base    limit G D
+00044836306i |  CS:0008( 0001| 0|  0) 00000000 0000010f 1 1
+00044836306i |  DS:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00044836306i |  SS:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00044836306i |  ES:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00044836306i |  FS:0000( 0002| 0|  0) 00000000 000fffff 1 1
+00044836306i |  GS:0000( 0002| 0|  0) 00000000 000fffff 1 1
+00044836306i | EIP=00000003 (00000003)
+00044836306i | CR0=0xe0050033 CR1=0 CR2=0x00118210
+00044836306i | CR3=0x01fd0000 CR4=0x00000000
+00044836306i >> lock push ebx : F053
+00044836306e[CPU0 ] exception(): 3rd (14) exception with no resolution, shutdown status is 00h, resetting
+00044836306i bx_pc_system_c::Reset(SOFTWARE) called
+00044836306i cpu software reset
+
+
+
+
+why?
+00044831229i >> 106b2e, 1fe8fec, 1fdc000
+00044831230i >> 106b2f, 1fe8fec, 1fdc000
+00044831231i >> 106b31, 1fe8fec, 1fdc000
+00044831232i >> 106b34, 1fe8fec, 1fdc000
+00044831233i >> 106b35, 1fe8fec, 1fdc000
+00044831234i >> 106b36, 1fe8fec, 1fdc000
+00044831235i >> 106b39, 1fe8fec, 1fdc000
+00044831236i >> 106b3c, 1fe8fec, 1fdc000
+00044831237i >> 106b3d, feafff10, 1fdc000
+00044831238i >> 106ad7, feafff24, 1fdc000
+00044831239i >> 106ada, feafff24, 1fdc000
+00044831240i >> 106b3e, feafff24, 1fdc000
+00044831241i >> 106b3f, feafff24, 1fdc000
+
+－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+
+
+正确的guo
+
+00042929629i >> 1078d5, 1fd1fac, 1fc2000
+00042929630i >> 1078d6, 1fd1fac, 1fc2000
+00042929631i >> 1078d7, 1fd1fdc, 1fc2000
+00042929632i >> 1078d8, 1fd1fe0, 1fc2000
+00042929633i >> 1078db, 1fd1fe0, 1fc2000
+00042929634i >> 0, 1fd1fec, 1fc2000
+00042929635i >> 5, 1fd1fec, 1fc2000
+00042929636i >> a, 1fd1fec, 1fc2000
+00042929637i >> c, 1fd1fec, 1fc2000
+00042929638i >> 11, 1fd1fec, 1fc2000
+00042929639i >> 107ea8, ff0, 1fc2000
+00042929640i >> 107eaa, ff0, 1fc2000
+00042929641i >> 107eac, ff0, 1fc2000
+00042929642i >> 1078c0, ff0, 1fc2000
+00042929643i >> 1078c1, ff0, 1fc2000
+。。。。
+00042929666i >> 106328, ff0, 1fc2000
+00042929667i >> 106329, ff0, 1fc2000
+00042929668i >> 10632b, ff0, 1fc2000
+00042929669i >> 10632e, ff0, 1fc2000
+00042929670i >> 10632f, ff0, 1fc2000
+00042929671i >> 106330, ff0, 1fc2000
+00042929672i >> 106333, ff0, 1fc2000
+00042929673i >> 106336, ff0, 1fc2000
+00042929674i >> 106337, feafff10, 1fc2000
+00042929675i >> 1062d1, feafff24, 1fc2000
+00042929676i >> 1062d4, feafff24, 1fc2000
+00042929677i >> 106338, feafff24, 1fc2000
+
+
