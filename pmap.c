@@ -7,6 +7,8 @@
 #include "errorno.h"
 #include "spinlock.h"
 #include "buddy.h"
+#include "memalloc.h"
+//added by jinyq to support multiple mem allocating policies
 
 spinlock_t phy_mem_lock;
 struct Page * pages;    // Physical Page descriptor array
@@ -135,7 +137,9 @@ remove_page(pde_t * pgdir, vaddr_t va)
     DecPageCount(p);
     if (!PageReserved(p) && !IsPageMapped(p)) {
       dbmsg("removing mapping %x at pages %x\n", va, p - pages);
+#ifdef BUDDY
       __free_pages(p, 1);
+#endif
     }
     *pte = 0;
   }

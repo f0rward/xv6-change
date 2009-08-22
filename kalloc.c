@@ -12,6 +12,8 @@
 #include "buddy.h"
 #include "spinlock.h"
 #include "assert.h"
+#include "memalloc.h"
+//added by jinyq to use multiple mem allocating policies
 
 struct spinlock kalloc_lock;
 
@@ -162,7 +164,9 @@ kfree(char *v, int len)
     panic("kree : exceed maximum pages that kfree can handle\n");
   acquire(&kalloc_lock);
 //  cprintf("free %x\n", (uint)v);
+#ifdef BUDDY
   __free_pages(page_frame(v), nr);
+#endif
   release(&kalloc_lock);
 }
 
@@ -224,7 +228,9 @@ kalloc(int n)
   if (nr > 1024)
     panic("kalloc : exceed maximum pages that kalloc can handle\n");
   acquire(&kalloc_lock);
+#ifdef BUDDY
   p = __alloc_pages(nr);
+#endif
 //  cprintf("alloc : %x\n",page_addr(p));
   release(&kalloc_lock);
   if (p)
