@@ -5,7 +5,6 @@ OBJS = \
 	file.o\
 	fs.o\
 	ide.o\
-	ioapic.o\
 	kalloc.o\
 	kbd.o\
 	lapic.o\

@@ -163,10 +163,10 @@ trap(struct trapframe *tf)
   if(cp && cp->state == RUNNING && tf->trapno == IRQ_OFFSET+IRQ_TIMER){
 #ifdef LOAD_BALANCE_ON
     if(cp == idleproc[cpu()]){
-      struct rq* rq = cpus[cpu()].rq;
+      struct rq* rq = theCpu.rq;
       rq->sched_class->load_balance(rq);
     }
 #endif
-    proc_tick(cpus[cpu()].rq, cp);
+    proc_tick(theCpu.rq, cp);
   }
 }
