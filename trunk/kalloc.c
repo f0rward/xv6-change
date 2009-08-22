@@ -78,12 +78,16 @@ init_phypages(void)
             init_pages_list(base, (uint)start - base, PG_reserved);
             cprintf("reserved for kernel %x, size %x\n", base, (uint)start - base);
             init_pages_list((paddr_t)start, len + base - (uint)start, 0);
+#ifdef BUDDY
             init_memmap(page_frame((paddr_t)start), (len + base - (uint)start) / PAGE);
+#endif
             cprintf("free memory %x, size %x\n", (paddr_t)start, len + base - (uint)start);
           }
           else {
             init_pages_list(base, len, 0);
+#ifdef BUDDY
             init_memmap(page_frame(base), len / PAGE);
+#endif
             cprintf("free memory %x, size %x\n", base, len);
           }
         }
