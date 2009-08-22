@@ -57,9 +57,9 @@ void            ide_intr(void);
 void            ide_rw(struct buf *);
 
 // ioapic.c
-void            ioapic_enable(int irq, int cpu);
-extern uchar    ioapic_id;
-void            ioapic_init(void);
+//void            ioapic_enable(int irq, int cpu);
+//extern uchar    ioapic_id;
+//void            ioapic_init(void);
 
 // kalloc.c
 char*           kalloc(int);
@@ -77,8 +77,8 @@ void            lapic_init(int);
 void            lapic_startap(uchar, uint);
 
 // mp.c
-extern int      ismp;
-int             mp_bcpu(void);
+//extern int      ismp;
+//int             mp_bcpu(void);
 void            mp_init(void);
 void            mp_startthem(void);
 

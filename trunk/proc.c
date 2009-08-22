@@ -647,13 +647,13 @@ procdump(void)
   uint pc[10];
 
   acquire(&proc_table_lock);
-  for(i=0; i<ncpu; i++)
+ /* for(i=0; i<ncpu; i++)
   {
     if(i != cpu())
       acquire(&(theCpu.rq->rq_lock));
-  }
+  }*/
   cprintf("************************\n"); 
-  for(i=0; i<ncpu; i++){
+  //for(i=0; i<ncpu; i++){
     p = theCpu.curproc;
     if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
       state = states[p->state];
@@ -661,13 +661,13 @@ procdump(void)
       state = "???";
 #ifndef SCHED_MLFQ
     cprintf("On cpu %d, nproc=%d : curproc_pid %d\n", 
-	i, theCpu.rq->proc_num, p->pid);
+	0, theCpu.rq->proc_num, p->pid);
 #else
     cprintf("On cpu %d, rq1=%d, rq2=%d, rq3=%d : curproc_pid %d\n",
-	i, theCpu.rq->proc_num, theCpu.rq->next->proc_num, theCpu.rq->next->next->proc_num, 
+	0, theCpu.rq->proc_num, theCpu.rq->next->proc_num, theCpu.rq->next->next->proc_num, 
 	p->pid);
 #endif
-  }
+ // }
    
   for(i = 0; i < NPROC; i++){
     p = &proc[i];
@@ -686,11 +686,11 @@ procdump(void)
     cprintf("\n");
   }
   cprintf("************************\n");
-  for(i = 0; i < ncpu; i++)
+ /* for(i = 0; i < ncpu; i++)
   {
     if(i != cpu())
     release(&(theCpu.rq->rq_lock));
-  }
+  }*/
   release(&proc_table_lock); 
 }
 

@@ -78,12 +78,12 @@ void load_balance_MLFQ(struct rq* rq){
   int num_procs_moved[3];
   
   // find out the busiest rq
-  for (i = 0; i < ncpu; i++){
+ // for (i = 0; i < ncpu; i++){
     if (rqs[i].proc_num + rqs[i+NCPU].proc_num + rqs[i+2*NCPU].proc_num > max){
       src_rq = &(rqs[i]);
       max = rqs[i].proc_num + rqs[i+NCPU].proc_num + rqs[i+2*NCPU].proc_num;
     }
-  }
+  //}
   if (src_rq == NULL)
     return;
 
