@@ -18,10 +18,10 @@
 
 static char* rq_lock_name = "rqlock";
 
-//#define SCHED_SIMPLE
+#define SCHED_SIMPLE
 //#define SCHED_FIFO
 //#define SCHED_RR
-#define SCHED_MLFQ
+//#define SCHED_MLFQ
 
 struct spinlock proc_table_lock;
 
