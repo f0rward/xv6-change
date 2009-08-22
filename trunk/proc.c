@@ -47,9 +47,9 @@ pinit(void)
 {  
   int i;
   initlock(&proc_table_lock, "proc_table");
-  for(i = 0; i < NCPU; i++)
-  {
-    struct rq * rq = &rqs[i];
+//  for(i = 0; i < NCPU; i++)
+//  {
+    struct rq * rq = &rqs[0];
 #ifdef SCHED_SIMPLE
     rq->sched_class = (struct sched_class *)&simple_sched_class;
     rq->sub_sched_class = (struct sched_class *)&simple_sched_class;
@@ -64,8 +64,8 @@ pinit(void)
     rq->max_slices = 100;
 #endif
 #ifdef SCHED_MLFQ
-    rq->next = &rqs[i+NCPU];
-    rq->next->next = &rqs[i+2*NCPU];
+    rq->next = &rqs[1];
+    rq->next->next = &rqs[2];
     rq->sched_class = (struct sched_class *)&sched_class_MLFQ;
     rq->sub_sched_class = (struct sched_class *)&sched_class_RR;
     rq->max_slices = 20;
@@ -81,9 +81,9 @@ pinit(void)
     init_rq(rq->next);
     init_rq(rq->next->next);
 #endif
-  }
-  for(i = 0; i < NCPU; i++)
-    theCpu.rq = &(rqs[i]);
+//  }
+ // for(i = 0; i < NCPU; i++)
+    theCpu.rq = &(rqs[0]);
 }
 
 // Look in the process table for an UNUSED proc.
@@ -323,13 +323,13 @@ userinit(void)
 
   initproc = p;
 
-  for(i=0; i<NCPU; i++){
-    p = idleproc[i] = allocIdle();
+//  for(i=0; i<NCPU; i++){
+    p = idleproc[0] = allocIdle();
     safestrcpy(p->name, "idle", sizeof(p->name));
     p->name[4] = (char)(i+'0');
     p->name[5] = '\0';\
-    cprintf("idleproc[%d]: %x\n", i,p);
-  }
+    cprintf("idleproc[%d]: %x\n", 0,p);
+ // }
 }
 
 // Return currently running process.
