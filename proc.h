@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 #ifndef _PROC_H_
 #define _PROC_H_
 
@@ -93,7 +83,8 @@ struct cpu {
   struct rq* rq;
 };
 
-extern struct cpu cpus[NCPU];
+//extern struct cpu cpus[NCPU];
+extern struct cpu theCpu;
 extern int ncpu;
 extern struct proc *initproc;
 extern struct proc *idleproc[];

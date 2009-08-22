@@ -281,7 +281,7 @@ console_init(void)
   use_console_lock = 1;
 
   pic_enable(IRQ_KBD);
-  ioapic_enable(IRQ_KBD, 0);
+  //ioapic_enable(IRQ_KBD, 0);
 }
 
 void

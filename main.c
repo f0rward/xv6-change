@@ -9,7 +9,7 @@
 #include "rq.h"
 #include "pmap.h"
 
-static void bootothers(void);
+//static void bootothers(void);
 static void mpmain(void) __attribute__((noreturn));
 
 // Bootstrap processor starts running C code here.
@@ -22,7 +22,7 @@ main(void)
   // clear BSS
   memset(edata, 0, end - edata);
 
-  mp_init(); // collect info about this machine
+  //mp_init(); // collect info about this machine
   lapic_init(mp_bcpu());
   cprintf("\ncpu%d: starting xv6\n\n", cpu());
   cprintf("count = %d\n",*count);
@@ -32,17 +32,17 @@ main(void)
   pinit();         // process table
   binit();         // buffer cache
   pic_init();      // interrupt controller
-  ioapic_init();   // another interrupt controller
+  //ioapic_init();   // another interrupt controller
   kinit();         // physical memory allocator
   tvinit();        // trap vectors
   fileinit();      // file table
   iinit();         // inode cache
   console_init();  // I/O devices & their interrupts
   ide_init();      // disk
-  if(!ismp)
+ // if(!ismp)
     timer_init();  // uniprocessor timer
   userinit();      // first user process
-  bootothers();    // start other processors
+  //bootothers();    // start other processors
 
   // Finish setting up this processor in mpmain.
   mpmain();
@@ -56,21 +56,21 @@ mpmain(void)
   extern paddr_t boot_cr3;
   cprintf("cpu%d: mpmain\n", cpu());
   idtinit();
-  if(cpu() != mp_bcpu()) {
+ /* if(cpu() != mp_bcpu()) {
     lapic_init(cpu());
     enable_paging();
 //  *(int *)(0x40000000) = 0;
     cprintf("cpu%d : paging enabled\n", cpu());
-  }
+  }*/
   setupsegs(0);
-  xchg(&cpus[cpu()].booted, 1);
+ // xchg(&cpus[cpu()].booted, 1);
 
   cprintf("cpu%d: scheduling\n", cpu());
   //scheduler();
   runIdle();
 }
 
-static void
+/*static void
 bootothers(void)
 {
   extern uchar _binary_bootother_start[], _binary_bootother_size[];
@@ -96,5 +96,5 @@ bootothers(void)
     while(c->booted == 0)
       ;
   }
-}
+}*/
 

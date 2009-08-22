@@ -83,7 +83,7 @@ pinit(void)
 #endif
   }
   for(i = 0; i < NCPU; i++)
-    cpus[i].rq = &(rqs[i]);
+    theCpu.rq = &(rqs[i]);
 }
 
 // Look in the process table for an UNUSED proc.
@@ -143,7 +143,7 @@ setupsegs(struct proc *p)
   struct cpu *c;
   
   pushcli();
-  c = &cpus[cpu()];
+  c = &theCpu;
   c->ts.ss0 = SEG_KDATA << 3;
   if(p)
     c->ts.esp0 = (uint)(p->kstack + KSTACKSIZE);
@@ -317,9 +317,9 @@ userinit(void)
   p->mem = (char *)KERNTOP;
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->state = RUNNABLE;
-  acquire(&(cpus[cpu()].rq->rq_lock));
-  enqueue_proc(cpus[cpu()].rq, p);
-  release(&(cpus[cpu()].rq->rq_lock));
+  acquire(&(theCpu.rq->rq_lock));
+  enqueue_proc(theCpu.rq, p);
+  release(&(theCpu.rq->rq_lock));
 
   initproc = p;
 
@@ -339,7 +339,7 @@ curproc(void)
   struct proc *p;
 
   pushcli();
-  p = cpus[cpu()].curproc;
+  p = theCpu.curproc;
   popcli();
   return p;
 }
@@ -358,11 +358,11 @@ runIdle(void)
   struct cpu *c;
   int i;
 
-  c = &cpus[cpu()];
+  c = &theCpu;
   p = idleproc[cpu()];
 
   sti();
-  acquire(&(cpus[cpu()].rq->rq_lock));
+  acquire(&(theCpu.rq->rq_lock));
   c->curproc = p;
   setupsegs(p);
   p->state = RUNNING;
@@ -380,17 +380,17 @@ schedule(void)
 {
   struct cpu *c;
   struct proc* next, *prev;
-  c = &cpus[cpu()];
+  c = &theCpu;
   prev = cp;
 
   //if(cp is not running)
   //   remove it from the queue
   if((prev->state != RUNNABLE) && (prev->state != RUNNING))
   {
-    dequeue_proc(cpus[cpu()].rq, prev);
+    dequeue_proc(theCpu.rq, prev);
   }
   // get next proc to run 
-  next = pick_next_proc(cpus[cpu()].rq);
+  next = pick_next_proc(theCpu.rq);
     
 
   // swtch
@@ -413,14 +413,14 @@ void
 yield(void)
 {
   //lock the rq
-  acquire(&(cpus[cpu()].rq->rq_lock));
+  acquire(&(theCpu.rq->rq_lock));
   cp->state = RUNNABLE;
 
-  yield_proc(cpus[cpu()].rq);
+  yield_proc(theCpu.rq);
   schedule();
 
   // unlock rq
-  release(&(cpus[cpu()].rq->rq_lock));
+  release(&(theCpu.rq->rq_lock));
 }
 
 // A fork child's very first scheduling by scheduler()
@@ -429,7 +429,7 @@ void
 forkret(void)
 {
   // Still holding proc_table_lock from scheduler.
-  release(&(cpus[cpu()].rq->rq_lock));
+  release(&(theCpu.rq->rq_lock));
   //cprintf(" cp is %s\n",cp->name);//chy debug
   // Jump into assembly, never to return.
   forkret1(cp->tf);
@@ -453,12 +453,12 @@ sleep(void *chan, struct spinlock *lk)
   // (wakeup runs with proc_table_lock locked),
   // so it's okay to release lk.
   if(lk == &proc_table_lock){
-    acquire(&(cpus[cpu()].rq->rq_lock));
-  }else if(lk == &(cpus[cpu()].rq->rq_lock)){
+    acquire(&(theCpu.rq->rq_lock));
+  }else if(lk == &(theCpu.rq->rq_lock)){
     acquire(&proc_table_lock);
   }else{
     acquire(&proc_table_lock);
-    acquire(&(cpus[cpu()].rq->rq_lock));
+    acquire(&(theCpu.rq->rq_lock));
     release(lk);
   }
 
@@ -474,12 +474,12 @@ sleep(void *chan, struct spinlock *lk)
 
   // Reacquire original lock.
   if(lk == &proc_table_lock){
-    release(&(cpus[cpu()].rq->rq_lock));
-  }else if(lk == &(cpus[cpu()].rq->rq_lock)){
+    release(&(theCpu.rq->rq_lock));
+  }else if(lk == &(theCpu.rq->rq_lock)){
     release(&proc_table_lock);
   }else{
     release(&proc_table_lock);
-    release(&(cpus[cpu()].rq->rq_lock));
+    release(&(theCpu.rq->rq_lock));
     acquire(lk);
   }
 }
@@ -494,7 +494,7 @@ wakeup1(void *chan)
   for(p = proc; p < &proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
-      enqueue_proc(cpus[cpu()].rq, p);
+      enqueue_proc(theCpu.rq, p);
     }
 }
 
@@ -503,11 +503,11 @@ void
 wakeup(void *chan)
 {
   acquire(&proc_table_lock);
-  acquire(&(cpus[cpu()].rq->rq_lock));
+  acquire(&(theCpu.rq->rq_lock));
 
   wakeup1(chan);
 
-  release(&(cpus[cpu()].rq->rq_lock));
+  release(&(theCpu.rq->rq_lock));
   release(&proc_table_lock);
 }
 
@@ -526,7 +526,7 @@ kill(int pid)
       // Wake process from sleep if necessary.
       if(p->state == SLEEPING){
         p->state = RUNNABLE;
-        enqueue_proc(cpus[cpu()].rq, p);
+        enqueue_proc(theCpu.rq, p);
       }
       release(&proc_table_lock);
       return 0;
@@ -560,7 +560,7 @@ exit(void)
   cp->cwd = 0;
 
   acquire(&proc_table_lock);
-  acquire(&(cpus[cpu()].rq->rq_lock));
+  acquire(&(theCpu.rq->rq_lock));
   // Parent might be sleeping in wait().
   wakeup1(cp->parent);
 
@@ -650,21 +650,21 @@ procdump(void)
   for(i=0; i<ncpu; i++)
   {
     if(i != cpu())
-      acquire(&(cpus[i].rq->rq_lock));
+      acquire(&(theCpu.rq->rq_lock));
   }
   cprintf("************************\n"); 
   for(i=0; i<ncpu; i++){
-    p = cpus[i].curproc;
+    p = theCpu.curproc;
     if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
       state = states[p->state];
     else
       state = "???";
 #ifndef SCHED_MLFQ
     cprintf("On cpu %d, nproc=%d : curproc_pid %d\n", 
-	i, cpus[i].rq->proc_num, p->pid);
+	i, theCpu.rq->proc_num, p->pid);
 #else
     cprintf("On cpu %d, rq1=%d, rq2=%d, rq3=%d : curproc_pid %d\n",
-	i, cpus[i].rq->proc_num, cpus[i].rq->next->proc_num, cpus[i].rq->next->next->proc_num, 
+	i, theCpu.rq->proc_num, theCpu.rq->next->proc_num, theCpu.rq->next->next->proc_num, 
 	p->pid);
 #endif
   }
@@ -689,7 +689,7 @@ procdump(void)
   for(i = 0; i < ncpu; i++)
   {
     if(i != cpu())
-    release(&(cpus[i].rq->rq_lock));
+    release(&(theCpu.rq->rq_lock));
   }
   release(&proc_table_lock); 
 }
@@ -755,6 +755,6 @@ struct proc* pick_next_proc(struct rq *rq)
 
 void proc_tick(struct rq* rq, struct proc* p)
 {
-  rq->sched_class->proc_tick(cpus[cpu()].rq, cp);
+  rq->sched_class->proc_tick(theCpu.rq, cp);
 }
 

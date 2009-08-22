@@ -48,7 +48,7 @@ ide_init(void)
 
   initlock(&ide_lock, "ide");
   pic_enable(IRQ_IDE);
-  ioapic_enable(IRQ_IDE, ncpu - 1);
+  //ioapic_enable(IRQ_IDE, ncpu - 1);
   ide_wait_ready(0);
   
   // Check if disk 1 is present

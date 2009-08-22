@@ -10,7 +10,8 @@
 #include "mmu.h"
 #include "proc.h"
 
-struct cpu cpus[NCPU];
+//struct cpu cpus[NCPU];
+struct cpu theCpu;
 static struct cpu *bcpu;
 int ismp;
 int ncpu;
@@ -19,7 +20,7 @@ uchar ioapic_id;
 int
 mp_bcpu(void)
 {
-  return bcpu-cpus;
+  return bcpu-&theCpu;
 }
 
 static uchar
@@ -94,7 +95,7 @@ mp_config(struct mp **pmp)
   return conf;
 }
 
-void
+/*void
 mp_init(void)
 {
   uchar *p, *e;
@@ -103,7 +104,7 @@ mp_init(void)
   struct mpproc *proc;
   struct mpioapic *ioapic;
 
-  bcpu = &cpus[ncpu];
+  bcpu = &theCpu;
   if((conf = mp_config(&mp)) == 0)
     return;
 
@@ -142,4 +143,4 @@ mp_init(void)
     outb(0x22, 0x70);   // Select IMCR
     outb(0x23, inb(0x23) | 1);  // Mask external interrupts.
   }
-}
+}*/
