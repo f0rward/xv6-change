@@ -12,18 +12,18 @@
 
 //struct cpu cpus[NCPU];
 struct cpu theCpu;
-static struct cpu *bcpu;
-int ismp;
-int ncpu;
-uchar ioapic_id;
+//static struct cpu *bcpu;
+//int ismp;
+//int ncpu;
+//uchar ioapic_id;
 
-int
+/*int
 mp_bcpu(void)
 {
   return bcpu-&theCpu;
-}
+}*/
 
-static uchar
+/*static uchar
 sum(uchar *addr, int len)
 {
   int i, sum;
@@ -32,10 +32,10 @@ sum(uchar *addr, int len)
   for(i=0; i<len; i++)
     sum += addr[i];
   return sum;
-}
+}*/
 
 // Look for an MP structure in the len bytes at addr.
-static struct mp*
+/*static struct mp*
 mp_search1(uchar *addr, int len)
 {
   uchar *e, *p;
@@ -45,14 +45,14 @@ mp_search1(uchar *addr, int len)
     if(memcmp(p, "_MP_", 4) == 0 && sum(p, sizeof(struct mp)) == 0)
       return (struct mp*)p;
   return 0;
-}
+}*/
 
 // Search for the MP Floating Pointer Structure, which according to the
 // spec is in one of the following three locations:
 // 1) in the first KB of the EBDA;
 // 2) in the last KB of system base memory;
 // 3) in the BIOS ROM between 0xF0000 and 0xFFFFF.
-static struct mp*
+/*static struct mp*
 mp_search(void)
 {
   uchar *bda;
@@ -69,14 +69,14 @@ mp_search(void)
       return mp;
   }
   return mp_search1((uchar*)0xF0000, 0x10000);
-}
+}*/
 
 // Search for an MP configuration table.  For now,
 // don't accept the default configurations (physaddr == 0).
 // Check for correct signature, calculate the checksum and,
 // if correct, check the version.
 // To do: check extended table checksum.
-static struct mpconf*
+/*static struct mpconf*
 mp_config(struct mp **pmp)
 {
   struct mpconf *conf;
@@ -93,7 +93,7 @@ mp_config(struct mp **pmp)
     return 0;
   *pmp = mp;
   return conf;
-}
+}*/
 
 /*void
 mp_init(void)

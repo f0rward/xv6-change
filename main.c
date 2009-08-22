@@ -23,7 +23,8 @@ main(void)
   memset(edata, 0, end - edata);
 
   //mp_init(); // collect info about this machine
-  lapic_init(mp_bcpu());
+  //lapic_init(mp_bcpu());
+  lapic_init(0);
   cprintf("\ncpu%d: starting xv6\n\n", cpu());
   cprintf("count = %d\n",*count);
   for (i = 0; i < *count; i++,p +=5)
