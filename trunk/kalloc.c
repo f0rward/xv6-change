@@ -9,7 +9,12 @@
 #include "defs.h"
 #include "param.h"
 #include "pmap.h"
+#ifdef BUDDY
 #include "buddy.h"
+#endif
+#ifdef FIRSTFIT
+#include "firstfit.h"
+#endif
 #include "spinlock.h"
 #include "assert.h"
 #include "memalloc.h"
@@ -81,12 +86,18 @@ init_phypages(void)
 #ifdef BUDDY
             init_memmap(page_frame((paddr_t)start), (len + base - (uint)start) / PAGE);
 #endif
+#ifdef FIRSTFIT
+            init_memmap_FF(page_frame((paddr_t)start), (len+base-(uint)start)/PAGE);
+#endif
             cprintf("free memory %x, size %x\n", (paddr_t)start, len + base - (uint)start);
           }
           else {
             init_pages_list(base, len, 0);
 #ifdef BUDDY
             init_memmap(page_frame(base), len / PAGE);
+#endif
+#ifdef FIRSTFIT
+            init_memmap_FF(page_frame(base), len/PAGE);
 #endif
             cprintf("free memory %x, size %x\n", base, len);
           }
@@ -171,6 +182,9 @@ kfree(char *v, int len)
 #ifdef BUDDY
   __free_pages(page_frame(v), nr);
 #endif
+#ifdef FIRSTFIT
+  __free_pages_FF(page_frame(v), nr);
+#endif
   release(&kalloc_lock);
 }
 
@@ -234,6 +248,9 @@ kalloc(int n)
   acquire(&kalloc_lock);
 #ifdef BUDDY
   p = __alloc_pages(nr);
+#endif
+#ifdef FIRSTFIT
+  p=__alloc_pages_FF(nr);
 #endif
 //  cprintf("alloc : %x\n",page_addr(p));
   release(&kalloc_lock);

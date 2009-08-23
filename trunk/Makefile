@@ -13,6 +13,7 @@ OBJS = \
 	picirq.o\
 	pipe.o\
 	buddy.o\
+        firstfit.o\
 	pmap.o\
 	proc.o\
 	spinlock.o\
