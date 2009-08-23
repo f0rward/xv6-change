@@ -38,7 +38,7 @@ init_memmap(struct Page * base, unsigned long nr)
       }
     }
   }
-//  test_buddy();
+  //test_buddy();
 }
 
 struct Page *
