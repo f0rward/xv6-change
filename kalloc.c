@@ -22,6 +22,10 @@
 #include "bestfit.h"
 #endif
 
+#ifdef WORSTFIT
+#include "worstfit.h"
+#endif
+
 #include "spinlock.h"
 #include "assert.h"
 #include "memalloc.h"
@@ -99,6 +103,9 @@ init_phypages(void)
 #ifdef BESTFIT
             init_memmap_BF(page_frame((paddr_t)start), (len+base-(uint)start)/PAGE);
 #endif
+#ifdef WORSTFIT
+            init_memmap_WF(page_frame((paddr_t)start), (len+base-(uint)start)/PAGE);
+#endif
             cprintf("free memory %x, size %x\n", (paddr_t)start, len + base - (uint)start);
           }
           else {
@@ -111,6 +118,9 @@ init_phypages(void)
 #endif
 #ifdef BESTFIT
             init_memmap_BF(page_frame(base), len/PAGE);
+#endif
+#ifdef WORSTFIT
+            init_memmap_WF(page_frame(base), len/PAGE);
 #endif
             cprintf("free memory %x, size %x\n", base, len);
           }
@@ -201,6 +211,9 @@ kfree(char *v, int len)
 #ifdef BESTFIT
   __free_pages_BF(page_frame(v), nr);
 #endif
+#ifdef WORSTFIT
+  __free_pages_WF(page_frame(v), nr);
+#endif
   release(&kalloc_lock);
 }
 
@@ -270,6 +283,9 @@ kalloc(int n)
 #endif
 #ifdef BESTFIT
   p=__alloc_pages_BF(nr);
+#endif
+#ifdef WORSTFIT
+  p=__alloc_pages_WF(nr);
 #endif
 //  cprintf("alloc : %x\n",page_addr(p));
   release(&kalloc_lock);

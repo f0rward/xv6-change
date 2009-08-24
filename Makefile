@@ -15,6 +15,7 @@ OBJS = \
 	buddy.o\
         firstfit.o\
         bestfit.o\
+        worstfit.o\
 	pmap.o\
 	proc.o\
 	spinlock.o\

@@ -73,7 +73,7 @@ void __free_pages_BF(struct Page * page, int nr){
 
 void print_cont_mem_BF(){
   int count=0;
-  struct Page* page=mem_map;
+  struct Page* page=LIST_FIRST(&free_area.free_list);
   while(count<free_area.nr_free){
     cprintf("free contiguous mem %x, size: %d pages\n", page_addr(page), page->property);
     count++;

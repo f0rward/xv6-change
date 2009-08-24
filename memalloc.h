@@ -1,3 +1,4 @@
 //#define BUDDY
 //#define FIRSTFIT
-#define BESTFIT
+//#define BESTFIT
+#define WORSTFIT
