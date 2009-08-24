@@ -9,12 +9,19 @@
 #include "defs.h"
 #include "param.h"
 #include "pmap.h"
+
 #ifdef BUDDY
 #include "buddy.h"
 #endif
+
 #ifdef FIRSTFIT
 #include "firstfit.h"
 #endif
+
+#ifdef BESTFIT
+#include "bestfit.h"
+#endif
+
 #include "spinlock.h"
 #include "assert.h"
 #include "memalloc.h"
@@ -89,6 +96,9 @@ init_phypages(void)
 #ifdef FIRSTFIT
             init_memmap_FF(page_frame((paddr_t)start), (len+base-(uint)start)/PAGE);
 #endif
+#ifdef BESTFIT
+            init_memmap_BF(page_frame((paddr_t)start), (len+base-(uint)start)/PAGE);
+#endif
             cprintf("free memory %x, size %x\n", (paddr_t)start, len + base - (uint)start);
           }
           else {
@@ -98,6 +108,9 @@ init_phypages(void)
 #endif
 #ifdef FIRSTFIT
             init_memmap_FF(page_frame(base), len/PAGE);
+#endif
+#ifdef BESTFIT
+            init_memmap_BF(page_frame(base), len/PAGE);
 #endif
             cprintf("free memory %x, size %x\n", base, len);
           }
@@ -185,6 +198,9 @@ kfree(char *v, int len)
 #ifdef FIRSTFIT
   __free_pages_FF(page_frame(v), nr);
 #endif
+#ifdef BESTFIT
+  __free_pages_BF(page_frame(v), nr);
+#endif
   release(&kalloc_lock);
 }
 
@@ -251,6 +267,9 @@ kalloc(int n)
 #endif
 #ifdef FIRSTFIT
   p=__alloc_pages_FF(nr);
+#endif
+#ifdef BESTFIT
+  p=__alloc_pages_BF(nr);
 #endif
 //  cprintf("alloc : %x\n",page_addr(p));
   release(&kalloc_lock);

@@ -14,6 +14,7 @@ OBJS = \
 	pipe.o\
 	buddy.o\
         firstfit.o\
+        bestfit.o\
 	pmap.o\
 	proc.o\
 	spinlock.o\
