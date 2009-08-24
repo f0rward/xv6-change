@@ -1,11 +1,11 @@
-#include "firstfit.h"
+#include "bestfit.h"
 #include "defs.h"
 
 free_area_t free_area;
-struct Page *mem_map;
-void test_firstfit();
+struct Page* mem_map;
+void test_worstfit();
 
-void init_memmap_FF(struct Page * base, unsigned long nr){
+void init_memmap_WF(struct Page * base, unsigned long nr){
   struct Page* page=base;
   mem_map = base;
   if(!LIST_EMPTY(&free_area.free_list)){
@@ -14,35 +14,43 @@ void init_memmap_FF(struct Page * base, unsigned long nr){
   LIST_INSERT_HEAD(&free_area.free_list, page, lru);
   free_area.nr_free++;
   page->property = nr;
-  //test_firstfit();
+  test_worstfit();
 }
 
-struct Page * __alloc_pages_FF(int nr){
+struct Page * __alloc_pages_WF(int nr){
   struct Page* page = LIST_FIRST(&free_area.free_list);
   int count=0;
  // cprintf("%d %d\n", count, free_area.nr_free);
+  struct Page* bulk_to_alloc=page;
+  uint32_t max_cont_block=page->property;
   while(count<free_area.nr_free){
-  //  cprintf("%d %d\n", page->property, nr);
+    //cprintf("%d %d\n", page->property, nr);
     if(page->property>=nr){
-      break;
+      if(page->property>max_cont_block){
+        max_cont_block=page->property;
+        bulk_to_alloc=page;
+      }
     }
     count++;
     page=LIST_NEXT(page, lru);
   }
-  if(count<=free_area.nr_free){
-    LIST_REMOVE(page, lru);
-    struct Page* remain=page+nr;
-    remain->property=page->property-nr;
-    if(remain->property)
+ // cprintf("%x %d\n", bulk_to_alloc, bulk_to_alloc->property);
+  if(bulk_to_alloc && bulk_to_alloc->property>=nr){
+    LIST_REMOVE(bulk_to_alloc, lru);
+    struct Page* remain=bulk_to_alloc+nr;
+    remain->property=bulk_to_alloc->property-nr;
+    //cprintf("remaining %d\n", remain->property);
+    if(remain->property){
+      //cprintf("putting back\n");
       LIST_INSERT_HEAD(&free_area.free_list, remain, lru);
-    else
+    }else
       free_area.nr_free--;
-    return page;
+    return bulk_to_alloc;
   }else{
     return NULL;
   }
 }
-void __free_pages_FF(struct Page * page, int nr){
+void __free_pages_WF(struct Page * page, int nr){
   struct Page* head=LIST_FIRST(&free_area.free_list);
   if(head==page+nr){
     page->property=nr+head->property;
@@ -66,7 +74,7 @@ void __free_pages_FF(struct Page * page, int nr){
   }
 }
 
-void print_cont_mem_FF(){
+void print_cont_mem_WF(){
   int count=0;
   struct Page* page=LIST_FIRST(&free_area.free_list);
   while(count<free_area.nr_free){
@@ -76,16 +84,18 @@ void print_cont_mem_FF(){
   }
 }
 
-void test_firstfit(){
-  print_cont_mem_FF();
-  struct Page* p1=__alloc_pages_FF(1);
+void test_worstfit(){
+  print_cont_mem_WF();
+  struct Page* p1=__alloc_pages_WF(1);
   struct Page* head=LIST_FIRST(&free_area.free_list);
   cprintf("after allocating a page, starting address of the contiguous mem becomes %x\n", page_addr(head));
-  struct Page* p2=__alloc_pages_FF(1);
-  __free_pages_FF(p1, 1);
+  struct Page* p2=__alloc_pages_WF(1);
+  cprintf("allocating p2 and freeing p1\n");
+  __free_pages_WF(p1, 1);
   cprintf("after freeing p1\n");
-  print_cont_mem_FF();
-  __free_pages_FF(p2, 1);
-  cprintf("after freeing p2\n");
-  print_cont_mem_FF();
+  print_cont_mem_WF();
+  cprintf("allocating p3\n");
+  struct Page* p3=__alloc_pages_WF(1);
+  cprintf("after allocating p3\n");
+  print_cont_mem_WF();
 }
