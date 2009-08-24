@@ -5,6 +5,7 @@ free_area_t free_area;
 struct Page* mem_map;
 void test_worstfit();
 
+/* refer to firstfit.c */
 void init_memmap_WF(struct Page * base, unsigned long nr){
   struct Page* page=base;
   mem_map = base;
@@ -17,16 +18,21 @@ void init_memmap_WF(struct Page * base, unsigned long nr){
   test_worstfit();
 }
 
+/* Function for seeking the biggest block of contiguous memory which is bigger
+   than or equal to nr pages.*/
 struct Page * __alloc_pages_WF(int nr){
   struct Page* page = LIST_FIRST(&free_area.free_list);
   int count=0;
  // cprintf("%d %d\n", count, free_area.nr_free);
-  struct Page* bulk_to_alloc=page;
+  struct Page* bulk_to_alloc=page;  //mark the starting page of a block to allocate.
+  // track the biggest size of mem bigger than or equal to nr pages.
   uint32_t max_cont_block=page->property;
   while(count<free_area.nr_free){
     //cprintf("%d %d\n", page->property, nr);
-    if(page->property>=nr){
-      if(page->property>max_cont_block){
+    if(page->property>=nr){  //Only if the size of a block is enough for nr pages
+                             // will we consider the block.
+      if(page->property>max_cont_block){// find the block whose
+                             //size is biggest.
         max_cont_block=page->property;
         bulk_to_alloc=page;
       }
@@ -50,6 +56,8 @@ struct Page * __alloc_pages_WF(int nr){
     return NULL;
   }
 }
+
+/*refer to firstfit.c*/
 void __free_pages_WF(struct Page * page, int nr){
   struct Page* head=LIST_FIRST(&free_area.free_list);
   if(head==page+nr){
@@ -74,6 +82,8 @@ void __free_pages_WF(struct Page * page, int nr){
   }
 }
 
+
+/*refer firstfit.c*/
 void print_cont_mem_WF(){
   int count=0;
   struct Page* page=LIST_FIRST(&free_area.free_list);

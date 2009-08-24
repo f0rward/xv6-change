@@ -5,6 +5,7 @@ free_area_t free_area;
 struct Page* mem_map;
 void test_bestfit();
 
+/* refer to firstfit.c */
 void init_memmap_BF(struct Page * base, unsigned long nr){
   struct Page* page=base;
   mem_map = base;
@@ -17,16 +18,22 @@ void init_memmap_BF(struct Page * base, unsigned long nr){
   //test_firstfit();
 }
 
+
+/* Function for seeking the smallest block of contiguous memory which is bigger
+   than or equal to nr pages.*/
 struct Page * __alloc_pages_BF(int nr){
   struct Page* page = LIST_FIRST(&free_area.free_list);
   int count=0;
  // cprintf("%d %d\n", count, free_area.nr_free);
-  struct Page* bulk_to_alloc=NULL;
-  uint32_t min_cont_block=0;
+  struct Page* bulk_to_alloc=NULL;  //mark the starting page of a block to allocate.
+  uint32_t min_cont_block=0; // track the smallest size of mem bigger than or equal
+                             // to nr pages.
   while(count<free_area.nr_free){
   //  cprintf("%d %d\n", page->property, nr);
-    if(page->property>=nr){
-      if(!bulk_to_alloc || page->property<min_cont_block){
+    if(page->property>=nr){  //Only if the size of a block is enough for nr pages
+                             // will we consider the block.
+      if(!bulk_to_alloc || page->property<min_cont_block){ // find the block whose
+                             //size is closest to nr.
         min_cont_block=page->property;
         bulk_to_alloc=page;
       }
@@ -34,19 +41,23 @@ struct Page * __alloc_pages_BF(int nr){
     count++;
     page=LIST_NEXT(page, lru);
   }
-  if(bulk_to_alloc && bulk_to_alloc->property>=nr){
-    LIST_REMOVE(bulk_to_alloc, lru);
-    struct Page* remain=bulk_to_alloc+nr;
-    remain->property=bulk_to_alloc->property-nr;
-    if(remain->property)
+  if(bulk_to_alloc && bulk_to_alloc->property>=nr){ //If the block is found.
+    LIST_REMOVE(bulk_to_alloc, lru); //first pick off this block.
+    struct Page* remain=bulk_to_alloc+nr; // find the remains.
+    remain->property=bulk_to_alloc->property-nr; //update the property of the
+                                      //remaining part.
+    if(remain->property)      // If we do not use up the block, just put it back.
       LIST_INSERT_HEAD(&free_area.free_list, remain, lru);
     else
-      free_area.nr_free--;
+      free_area.nr_free--;  // or we can decrement the number of free blocks of
+                           // contiguous memory in free_area.free_list.
     return bulk_to_alloc;
   }else{
     return NULL;
   }
 }
+
+/*refer to firstfit.c*/
 void __free_pages_BF(struct Page * page, int nr){
   struct Page* head=LIST_FIRST(&free_area.free_list);
   if(head==page+nr){
@@ -71,6 +82,7 @@ void __free_pages_BF(struct Page * page, int nr){
   }
 }
 
+/*refer firstfit.c*/
 void print_cont_mem_BF(){
   int count=0;
   struct Page* page=LIST_FIRST(&free_area.free_list);

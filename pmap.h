@@ -33,7 +33,10 @@ typedef LIST_ENTRY(Page) page_list_entry_t;
 struct Page {
 	uint32_t flags;  // flags for page descriptors
 	uint32_t mapcount;  // number of page table entries that refer to the page frame
-	uint32_t property;  // when the page is free , this field is used by the buddy system
+	uint32_t property;  // when the page is free , this field is used by the buddy system.
+             //In first fit, best fit and worst fit algorithms, the property field
+             //of the first page in a contiguous block records the number of free
+              // pages, namely the size of that block of memory.
 	uint32_t index;
 	page_list_entry_t lru; /* free list link */
 };
