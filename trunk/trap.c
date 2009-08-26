@@ -117,12 +117,12 @@ trap(struct trapframe *tf)
   switch(tf->trapno){
   cprintf("interrupt %x, trap frame : %x\n",tf->trapno, (uint)tf);
   case IRQ_OFFSET + IRQ_TIMER:
-    if(cpu() == 0){
+  //  if(cpu() == 0){
       acquire(&tickslock);
       ticks++;
       wakeup(&ticks);
       release(&tickslock);
-    }
+  //  }
     lapic_eoi();
     break;
   case IRQ_OFFSET + IRQ_IDE:
