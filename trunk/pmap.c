@@ -140,6 +140,15 @@ remove_page(pde_t * pgdir, vaddr_t va)
 #ifdef BUDDY
       __free_pages(p, 1);
 #endif
+#ifdef FIRSTFIT
+      __free_pages_FF(p, 1);
+#endif
+#ifdef BESTFIT
+      __free_pages_BF(p, 1);
+#endif
+#ifdef WORSTFIT
+      __free_pages_WF(p, 1);
+#endif
     }
     *pte = 0;
   }
