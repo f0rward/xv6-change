@@ -1230,6 +1230,14 @@ forktest(void)
   printf(1, "fork test OK\n");
 }
 
+void pgfault_test(void){
+  printf(1, "invoking page fault handler test...\n");
+  char *mem=0;
+  mem=malloc(200);  //just allocated some memory to this process but hasn't mapped the physical memory to virtual memory, so when referrencing mem[i], page fault occurs.
+  mem[0]='a';
+  mem[1]='b';
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1243,7 +1251,6 @@ main(int argc, char *argv[])
 
   opentest();
   writetest();
-//  writetest1();
   twofiles();
   sharedfd();
   concreate();
@@ -1255,6 +1262,8 @@ main(int argc, char *argv[])
   fourteen();
   subdir();
   dirfile();
+
+  pgfault_test();
 
   exectest();
 

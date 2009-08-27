@@ -101,6 +101,8 @@ print_trapframe(struct trapframe *tf)
 void
 trap(struct trapframe *tf)
 {
+
+  uint cr2;
   //print_trapframe(tf); procdump(); //chy for debug
   if (cp!=NULL)
      dbmsg("trap frame from %x %x, cp name %s\n",tf->eip, tf->trapno,cp->name);
@@ -138,7 +140,19 @@ trap(struct trapframe *tf)
             cpu(), tf->cs, tf->eip);
     lapic_eoi();
     break;
-    
+  case T_PGFLT:
+    cprintf("page fault!\n");
+    if (cp!=0 && tf->cs & 3 != 0){
+      cr2=rcr2();
+      if(handle_pgfault(cr2)<0){
+        cprintf("cannot handle page fault. Virtual addr: %x, eip: %x\n", cr2, tf->eip);
+      }else{
+        cprintf("page fault handled successfully!. Virtual addr: %x, eip: %x\n", cr2, tf->eip);
+      }
+    }else{
+        cprintf("page fault in kernel!\n");
+    }
+    break;
   default:
     if(cp == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.

@@ -627,6 +627,21 @@ wait(void)
   }
 }
 
+int
+handle_pgfault(uint va)
+{
+  int ret;
+  cprintf("handling pgfault!\n");
+  char* mem=NULL;
+  mem=kalloc(PAGE);
+  if(mem==NULL){
+    return -1;
+  }
+  memset(mem, 0, PAGE);
+  ret=map_segment(cp->vm.pgdir, (paddr_t)mem, va & ~0xfff, PAGE, PTE_P | PTE_U | PTE_W);
+  return ret;
+}
+
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
 // No lock to avoid wedging a stuck machine further.
