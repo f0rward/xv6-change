@@ -107,6 +107,7 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int            handle_pgfault(uint va); //added by jinyq06
 
 // swtch.S
 void            swtch(struct context*, struct context*);
