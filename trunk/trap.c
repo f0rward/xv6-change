@@ -142,16 +142,14 @@ trap(struct trapframe *tf)
     break;
   case T_PGFLT:
     cprintf("page fault!\n");
-    if (cp!=0 && tf->cs & 3 != 0){
-      cr2=rcr2();
-      if(handle_pgfault(cr2)<0){
-        cprintf("cannot handle page fault. Virtual addr: %x, eip: %x\n", cr2, tf->eip);
-      }else{
-        cprintf("page fault handled successfully!. Virtual addr: %x, eip: %x\n", cr2, tf->eip);
-      }
+    //cprintf("current process uses %d pages.\n", cp->sz/PAGE);
+    cr2=rcr2();
+    if(handle_pgfault(cr2)<0){
+      cprintf("cannot handle page fault! Virtual addr: %x, eip: %x\n", cr2, tf->eip);
     }else{
-        cprintf("page fault in kernel!\n");
+      cprintf("page fault handled successfully! Virtual addr: %x, eip: %x\n", cr2, tf->eip);
     }
+    //cprintf("current process uses %d pages.\n", cp->sz/PAGE);
     break;
   default:
     if(cp == 0 || (tf->cs&3) == 0){

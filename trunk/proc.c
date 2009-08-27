@@ -135,6 +135,15 @@ growproc(int n)
   return cp->sz - n;
 }
 
+int
+ugrowproc(int n)
+{
+  char *newmem;
+  cp->sz += n;
+  setupsegs(cp);
+  return cp->sz - n;
+}
+
 // Set up CPU's segment descriptors and task state for a given process.
 // If p==0, set up for "idle" state for when scheduler() is running.
 void
@@ -630,6 +639,7 @@ wait(void)
 int
 handle_pgfault(uint va)
 {
+  pte_t* pte=get_pte(cp->vm.pgdir, va, 0);
   int ret;
   cprintf("handling pgfault!\n");
   char* mem=NULL;

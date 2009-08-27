@@ -1231,11 +1231,18 @@ forktest(void)
 }
 
 void pgfault_test(void){
-  printf(1, "invoking page fault handler test...\n");
+  printf(1, "invoking page fault handler test.\n");
   char *mem=0;
-  mem=malloc(200);  //just allocated some memory to this process but hasn't mapped the physical memory to virtual memory, so when referrencing mem[i], page fault occurs.
+  int size=0;
+  size=procmem();
+  printf(1, "current process uses %d pages.\n", size);
+  mem=malloc(4096);  //just allocated some memory to this process but hasn't mapped the physical memory to virtual memory, so when referrencing mem[i], page fault occurs.
+  size=procmem();
   mem[0]='a';
-  mem[1]='b';
+  printf(1, "The memory space is %s\n", mem);
+  printf(1, "current process uses %d pages.\n", size);
+  //mem[1]='b';
+  //printf(1, "current process uses %d pages.\n", size);
 }
 
 int
