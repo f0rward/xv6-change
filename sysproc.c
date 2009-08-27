@@ -61,7 +61,7 @@ sys_sbrk(void)
 
   if(argint(0, &n) < 0)
     return -1;
-  if((addr = growproc(n)) < 0)
+  if((addr = ugrowproc(n)) < 0)
     return -1;
   return addr;
 }
@@ -84,4 +84,8 @@ sys_sleep(void)
   }
   release(&tickslock);
   return 0;
+}
+
+int sys_procmem(void){
+  return cp->sz/PAGE;
 }
