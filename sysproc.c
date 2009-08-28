@@ -61,7 +61,7 @@ sys_sbrk(void)
 
   if(argint(0, &n) < 0)
     return -1;
-  if((addr = ugrowproc(n)) < 0)
+  if((addr = growproc(n)) < 0)
     return -1;
   return addr;
 }
